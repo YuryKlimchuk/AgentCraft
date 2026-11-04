@@ -22,7 +22,9 @@ fi
 
 echo "AgentCraft setup → $TARGET_ABS"
 
-# 0. Prepare real directories (replace any symlinks so we never write through them)
+# 0. Prepare real directories (replace any symlinks so we never write through them).
+#    Everything below is additive: it adds/overwrites AgentCraft's own assets and
+#    never deletes content the target repository added on its own.
 ensure_real_dir() {
   local d="$1"
   if [ -L "$d" ]; then
@@ -33,20 +35,6 @@ ensure_real_dir() {
 ensure_real_dir "$TARGET/.pi/agents"
 ensure_real_dir "$TARGET/.pi/skills"
 
-# Cleanup: remove target assets that no longer exist in the source
-cleanup_stale() {
-  local target_dir="$1" src_dir="$2" name
-  [ -d "$target_dir" ] || return 0
-  for d in "$target_dir"/*/; do
-    [ -d "$d" ] || continue
-    name="$(basename "$d")"
-    [ -d "$src_dir/$name" ] || { echo "  remove stale asset: $name"; rm -rf "$d"; }
-  done
-}
-
-cleanup_stale "$TARGET/.pi/agents" "$SRC/agents"
-cleanup_stale "$TARGET/.pi/skills" "$SRC/skills"
-
 # 1. Agents (.pi/agents)
 cp -R "$SRC/agents/." "$TARGET/.pi/agents/"
 
@@ -55,11 +43,6 @@ cp -R "$SRC/skills/." "$TARGET/.pi/skills/"
 
 # 3. Documentation (docs/)
 mkdir -p "$TARGET/docs"
-for f in "$TARGET"/docs/*.md; do
-  [ -e "$f" ] || continue
-  name="$(basename "$f")"
-  [ -e "$SRC/docs/$name" ] || { echo "  remove stale doc: $name"; rm -f "$f"; }
-done
 for f in "$SRC"/docs/*.md; do
   [ -e "$f" ] || continue
   cp "$f" "$TARGET/docs/$(basename "$f")"
