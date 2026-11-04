@@ -14,9 +14,26 @@ if [ ! -d "$TARGET" ]; then
   exit 1
 fi
 
-echo "AgentCraft setup → $(cd "$TARGET" && pwd)"
+TARGET_ABS="$(cd "$TARGET" && pwd)"
+if [ "$TARGET_ABS" = "$SRC" ]; then
+  echo "Error: target directory is the AgentCraft source itself ($SRC). Run setup.sh in a different target repository." >&2
+  exit 1
+fi
 
-# 0. Cleanup: remove target assets that no longer exist in the source
+echo "AgentCraft setup → $TARGET_ABS"
+
+# 0. Prepare real directories (replace any symlinks so we never write through them)
+ensure_real_dir() {
+  local d="$1"
+  if [ -L "$d" ]; then
+    rm -f "$d"
+  fi
+  mkdir -p "$d"
+}
+ensure_real_dir "$TARGET/.pi/agents"
+ensure_real_dir "$TARGET/.pi/skills"
+
+# Cleanup: remove target assets that no longer exist in the source
 cleanup_stale() {
   local target_dir="$1" src_dir="$2" name
   [ -d "$target_dir" ] || return 0
@@ -31,17 +48,21 @@ cleanup_stale "$TARGET/.pi/agents" "$SRC/agents"
 cleanup_stale "$TARGET/.pi/skills" "$SRC/skills"
 
 # 1. Agents (.pi/agents)
-mkdir -p "$TARGET/.pi/agents"
 cp -R "$SRC/agents/." "$TARGET/.pi/agents/"
 
 # 2. Skills (.pi/skills)
-mkdir -p "$TARGET/.pi/skills"
 cp -R "$SRC/skills/." "$TARGET/.pi/skills/"
 
 # 3. Documentation (docs/)
 mkdir -p "$TARGET/docs"
-for f in workflow.md quality-gates.md orchestrator.md openspec.md; do
-  cp "$SRC/docs/$f" "$TARGET/docs/$f"
+for f in "$TARGET"/docs/*.md; do
+  [ -e "$f" ] || continue
+  name="$(basename "$f")"
+  [ -e "$SRC/docs/$name" ] || { echo "  remove stale doc: $name"; rm -f "$f"; }
+done
+for f in "$SRC"/docs/*.md; do
+  [ -e "$f" ] || continue
+  cp "$f" "$TARGET/docs/$(basename "$f")"
 done
 
 # 4. OpenSpec config (preserve existing)
