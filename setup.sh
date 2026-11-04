@@ -56,24 +56,17 @@ else
   cp "$SRC/openspec/config.yaml" "$TARGET/openspec/config.yaml"
 fi
 
-# 5. AGENTS.md — use the generic target template; patch an existing file, never overwrite
+# 5. AGENTS.md — copy the generic template only when the target has none.
+#    An existing AGENTS.md is left untouched (it may already define its own workflow).
 AGENTS_TEMPLATE="$SRC/templates/AGENTS.md"
-AGENTS_MARKER="<!-- AgentCraft workflow (installed by setup.sh) -->"
 
 if [ -f "$TARGET/AGENTS.md" ]; then
-  if grep -qF "$AGENTS_MARKER" "$TARGET/AGENTS.md"; then
-    echo "  skip AGENTS.md (AgentCraft workflow already present)"
-  elif cmp -s "$TARGET/AGENTS.md" "$SRC/AGENTS.md"; then
+  if cmp -s "$TARGET/AGENTS.md" "$SRC/AGENTS.md"; then
     # Migration: an older setup.sh copied AgentCraft's own AGENTS.md by mistake.
     cp "$AGENTS_TEMPLATE" "$TARGET/AGENTS.md"
     echo "  replaced miscopied AgentCraft AGENTS.md with the target template"
   else
-    {
-      printf '\n%s\n' "$AGENTS_MARKER"
-      printf '%s\n' 'This repository follows the **AgentCraft** development workflow (8 stages, quality gates).'
-      printf '%s\n' 'See `docs/workflow.md`, `docs/orchestrator.md`, and `docs/quality-gates.md`.'
-    } >> "$TARGET/AGENTS.md"
-    echo "  appended AgentCraft workflow to existing AGENTS.md"
+    echo "  skip AGENTS.md (already exists)"
   fi
 else
   cp "$AGENTS_TEMPLATE" "$TARGET/AGENTS.md"
