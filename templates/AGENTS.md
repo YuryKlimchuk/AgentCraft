@@ -16,9 +16,9 @@ Development follows eight stages coordinated by the Orchestrator (the leading co
 7. QA Testing
 8. Finalization and Pull Request
 
-- Stage details and transitions: `docs/workflow.md`
-- Orchestrator role and delegation rules: `docs/orchestrator.md`
-- Quality-gate pass conditions: `docs/quality-gates.md`
+- Stage details and transitions: `docs/agentcraft/workflow.md`
+- Orchestrator role and delegation rules: `docs/agentcraft/orchestrator.md`
+- Quality-gate pass conditions: `docs/agentcraft/quality-gates.md`
 
 ## Quality gates
 

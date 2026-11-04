@@ -28,10 +28,9 @@ reusable engineering assets for AI coding agents:
 ./setup.sh /path/to/target-repository   # default: current directory
 ```
 
-The script copies agents, skills, docs, and OpenSpec config into the target. For `AGENTS.md`
-it copies `templates/AGENTS.md` when the target has none, and appends a short AgentCraft
-workflow pointer to an existing `AGENTS.md` (never overwriting it). An existing
-`openspec/config.yaml` is preserved.
+The script copies agents, skills, docs (into `docs/agentcraft/`), and OpenSpec config into the
+target. It copies `templates/AGENTS.md` only when the target has no `AGENTS.md`; an existing
+`AGENTS.md` is left untouched. An existing `openspec/config.yaml` is preserved.
 
 ## Key principles
 

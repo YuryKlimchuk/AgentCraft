@@ -41,11 +41,11 @@ cp -R -n "$SRC/agents/." "$TARGET/.pi/agents/" 2>/dev/null
 # 2. Skills (.pi/skills)
 cp -R -n "$SRC/skills/." "$TARGET/.pi/skills/" 2>/dev/null
 
-# 3. Documentation (docs/)
-mkdir -p "$TARGET/docs"
+# 3. Documentation (docs/agentcraft/)
+mkdir -p "$TARGET/docs/agentcraft"
 for f in "$SRC"/docs/*.md; do
   [ -e "$f" ] || continue
-  cp -n "$f" "$TARGET/docs/$(basename "$f")" 2>/dev/null
+  cp -n "$f" "$TARGET/docs/agentcraft/$(basename "$f")" 2>/dev/null
 done
 
 # 4. OpenSpec config (preserve existing)
@@ -73,4 +73,4 @@ else
   echo "  copied AGENTS.md template"
 fi
 
-echo "Done. Review .pi/agents, .pi/skills, docs/, openspec/, AGENTS.md."
+echo "Done. Review .pi/agents, .pi/skills, docs/agentcraft/, openspec/, AGENTS.md."
