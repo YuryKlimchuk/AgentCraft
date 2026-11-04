@@ -80,6 +80,8 @@ The workflow includes feedback loops for corrections and requires user approval 
 
 Detailed workflow rules and stage transitions are maintained in `docs/workflow.md`.
 
+The Orchestrator role (the leading Pi agent that coordinates the stages) and stage-by-stage delegation rules are defined in `docs/orchestrator.md`.
+
 ## 5. Quality Assurance
 
 Prefer deterministic, programmatic verification over relying on AI agents to evaluate their own work.

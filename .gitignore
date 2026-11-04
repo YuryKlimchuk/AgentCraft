@@ -1,0 +1,5 @@
+# IDE
+.idea/
+
+# Local deployment of AgentCraft assets (created by setup.sh for verification)
+.pi/
