@@ -14,7 +14,8 @@ reusable engineering assets for AI coding agents:
 
 | Path | Contents |
 |------|----------|
-| `AGENTS.md` | Project instructions loaded by the coding agent |
+| `AGENTS.md` | Project instructions for the AgentCraft repository itself |
+| `templates/AGENTS.md` | Generic project-instructions template copied into target repositories |
 | `agents/` | Subagent definitions (distributed to `.pi/agents`) |
 | `skills/` | Engineering skills (distributed to `.pi/skills`) |
 | `docs/` | Workflow, orchestrator, and quality-gate documentation |
@@ -27,8 +28,10 @@ reusable engineering assets for AI coding agents:
 ./setup.sh /path/to/target-repository   # default: current directory
 ```
 
-The script copies agents, skills, docs, and OpenSpec config into the target, preserving any
-existing `AGENTS.md` and `openspec/config.yaml`.
+The script copies agents, skills, docs, and OpenSpec config into the target. For `AGENTS.md`
+it copies `templates/AGENTS.md` when the target has none, and appends a short AgentCraft
+workflow pointer to an existing `AGENTS.md` (never overwriting it). An existing
+`openspec/config.yaml` is preserved.
 
 ## Key principles
 

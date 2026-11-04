@@ -57,6 +57,7 @@ AgentCraft consists of:
 - **Platform configuration** — Pi and extension configuration.
 - **OpenSpec configuration** — instructions and templates.
 - **Setup script** — installation and updating of assets in target repositories.
+- **Templates** — generic assets distributed into target repositories (e.g., `templates/AGENTS.md`).
 - **Documentation** — project and workflow documentation.
 
 Use the established Agent Skills specification. Do not invent a custom Skills format.
