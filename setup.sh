@@ -23,8 +23,8 @@ fi
 echo "AgentCraft setup → $TARGET_ABS"
 
 # 0. Prepare real directories (replace any symlinks so we never write through them).
-#    Everything below is additive: it adds/overwrites AgentCraft's own assets and
-#    never deletes content the target repository added on its own.
+#    Everything below is additive: it adds AgentCraft's assets, never overwrites
+#    existing same-named files, and never deletes the target's own content.
 ensure_real_dir() {
   local d="$1"
   if [ -L "$d" ]; then
@@ -36,16 +36,16 @@ ensure_real_dir "$TARGET/.pi/agents"
 ensure_real_dir "$TARGET/.pi/skills"
 
 # 1. Agents (.pi/agents)
-cp -R "$SRC/agents/." "$TARGET/.pi/agents/"
+cp -R -n "$SRC/agents/." "$TARGET/.pi/agents/" 2>/dev/null
 
 # 2. Skills (.pi/skills)
-cp -R "$SRC/skills/." "$TARGET/.pi/skills/"
+cp -R -n "$SRC/skills/." "$TARGET/.pi/skills/" 2>/dev/null
 
 # 3. Documentation (docs/)
 mkdir -p "$TARGET/docs"
 for f in "$SRC"/docs/*.md; do
   [ -e "$f" ] || continue
-  cp "$f" "$TARGET/docs/$(basename "$f")"
+  cp -n "$f" "$TARGET/docs/$(basename "$f")" 2>/dev/null
 done
 
 # 4. OpenSpec config (preserve existing)
