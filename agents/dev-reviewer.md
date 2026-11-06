@@ -40,9 +40,11 @@ You receive from the Orchestrator:
 
 Return a code review report to the Orchestrator:
 - **What is good** (with evidence, file/line);
-- **Blockers** — must be fixed before proceeding;
-- **Findings** — worth fixing;
+- **Blockers** — findings with `blocking: yes`;
+- **Findings** — non-blocking observations worth fixing;
 - **Review status**: `passed` / `needs changes`.
+
+Each blocker/finding uses the shared findings format (`severity`, `category`, `blocking`, `userDecisionRequired`, `recommendation`, `resolution`) — see `docs/agentcraft/findings.md`.
 
 # Boundaries
 

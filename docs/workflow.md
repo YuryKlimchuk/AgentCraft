@@ -346,7 +346,7 @@ When manual verification is required, the workflow waits for user confirmation. 
 **Output:**
 - QA report.
 - Test execution results.
-- Defect list, if applicable.
+- Findings (defects and observations) in the shared findings format, if any.
 - Manual verification instructions, when required.
 
 **Quality Gate:**

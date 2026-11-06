@@ -48,7 +48,7 @@ Return to the Orchestrator a **Test plan** (saved as `test-plan.md` in the chang
 6. **Risks & assumptions** — risks and assumptions.
 7. **Entry/exit criteria** — entry conditions and the G7 pass criteria.
 
-Plus **review findings** (design risks worth the user's attention).
+Plus **findings** in the shared findings format (`severity`, `category`, `blocking`, `userDecisionRequired`, `recommendation`, `resolution`) — see `docs/agentcraft/findings.md`.
 
 # Boundaries
 

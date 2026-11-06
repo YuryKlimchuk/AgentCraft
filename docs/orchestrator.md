@@ -94,6 +94,7 @@ Keep the chain "requirement → design → implementation → verification" trac
 - Subagents escalate via `contact_supervisor` (`reason: "need_decision"`).
 - The Orchestrator replies via `subagent_supervisor({ action: "reply", ... })`, or inspects pending asks via `subagent_supervisor({ action: "pending" })`.
 - If a decision needs the user, pass the question to the user, then return the answer to the subagent.
+- Findings from `qa-planner`, `dev-reviewer`, and `qa-tester` follow the shared format in [findings.md](findings.md); route them by `blocking` and `userDecisionRequired`, not by prose.
 
 ## Failure handling
 
