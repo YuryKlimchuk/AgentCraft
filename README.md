@@ -21,6 +21,7 @@ reusable engineering assets for AI coding agents:
 | `docs/` | Workflow, orchestrator, and quality-gate documentation |
 | `openspec/` | OpenSpec configuration and templates |
 | `setup.sh` | Lightweight install/update script |
+| `tests/` | setup.sh regression tests (dev-only, not distributed) |
 
 ## Install into a target repository
 
@@ -31,6 +32,14 @@ reusable engineering assets for AI coding agents:
 The script copies agents, skills, docs (into `docs/agentcraft/`), and OpenSpec config into the
 target. It copies `templates/AGENTS.md` only when the target has no `AGENTS.md`; an existing
 `AGENTS.md` is left untouched. An existing `openspec/config.yaml` is preserved.
+
+## Verify
+
+Run the setup.sh regression tests:
+
+```bash
+tests/run.sh
+```
 
 ## Key principles
 

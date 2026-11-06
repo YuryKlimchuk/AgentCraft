@@ -69,7 +69,15 @@ Other gates are Orchestrator checks, not user approvals:
 | G5 | `dev-implementer` |
 | G6 | `dev-implementer` |
 | G7 | `dev-implementer` → after changes repeat `dev-reviewer` → then `qa-tester` |
-| G8 | `dev-implementer` |
+| G8 | depends on cause — see "Finalization failures" below |
+
+### Finalization failures (G8)
+
+G8 has different failure classes and they must not be conflated:
+
+- **Verification results missing/incomplete** — return to the stage whose result is actually missing (per the table above). Do not default to `dev-implementer`.
+- **Publication failed** (branch push, PR creation) — the code is already verified; retry Finalization, do not change code.
+- **Permission/config error** — ask the user for a decision instead of looping.
 
 ## Artifacts and traceability
 

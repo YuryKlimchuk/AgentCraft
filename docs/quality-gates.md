@@ -167,6 +167,10 @@ This document details the pass conditions for each workflow Quality Gate. The wo
 - [ ] Workflow artifacts are collected (requirements, OpenSpec docs, Test plan, check results, reports).
 - [ ] The Pull Request is created and the user is notified.
 
-**On failure:** return to Developer.
+**On failure (depends on cause):**
+
+- Missing or incomplete results from a mandatory stage (G5/G6/G7) → return to the stage that actually failed (see the rollback table in [orchestrator.md](orchestrator.md)).
+- Branch publication or Pull Request creation failed (temporary or infrastructure error) → retry Finalization; do not return to Developer — the code is already verified.
+- Permission or configuration error (cannot push / create the PR) → ask the user for a decision.
 
 > **Important:** G8 does not re-run testing. It verifies that confirmed results from previous stages exist.

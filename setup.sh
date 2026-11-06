@@ -22,9 +22,22 @@ fi
 
 echo "AgentCraft setup → $TARGET_ABS"
 
-# 0. Prepare real directories (replace any symlinks so we never write through them).
+# 0. Never write through symlinks.
+#    - Refuse symlinked parents, files, and ambiguous paths (likely user-owned):
+#      .pi, docs, openspec, AGENTS.md.
+#    - Replace a stray symlink with a real directory only for leaf directories
+#      that AgentCraft fully owns: .pi/agents, .pi/skills, docs/agentcraft.
 #    Everything below is additive: it adds AgentCraft's assets, never overwrites
 #    existing same-named files, and never deletes the target's own content.
+refuse_symlink() {
+  local p="$1"
+  if [ -L "$p" ]; then
+    echo "Error: refusing to write through symlink: $p" >&2
+    echo "       Remove the symlink or run setup.sh against a real directory." >&2
+    exit 1
+  fi
+}
+
 ensure_real_dir() {
   local d="$1"
   if [ -L "$d" ]; then
@@ -32,20 +45,26 @@ ensure_real_dir() {
   fi
   mkdir -p "$d"
 }
+
+refuse_symlink "$TARGET/.pi"
+refuse_symlink "$TARGET/docs"
+refuse_symlink "$TARGET/openspec"
+refuse_symlink "$TARGET/AGENTS.md"
+
 ensure_real_dir "$TARGET/.pi/agents"
 ensure_real_dir "$TARGET/.pi/skills"
+ensure_real_dir "$TARGET/docs/agentcraft"
 
 # 1. Agents (.pi/agents)
-cp -R -n "$SRC/agents/." "$TARGET/.pi/agents/" 2>/dev/null
+cp -R -n "$SRC/agents/." "$TARGET/.pi/agents/"
 
 # 2. Skills (.pi/skills)
-cp -R -n "$SRC/skills/." "$TARGET/.pi/skills/" 2>/dev/null
+cp -R -n "$SRC/skills/." "$TARGET/.pi/skills/"
 
 # 3. Documentation (docs/agentcraft/)
-mkdir -p "$TARGET/docs/agentcraft"
 for f in "$SRC"/docs/*.md; do
   [ -e "$f" ] || continue
-  cp -n "$f" "$TARGET/docs/agentcraft/$(basename "$f")" 2>/dev/null
+  cp -n "$f" "$TARGET/docs/agentcraft/$(basename "$f")"
 done
 
 # 4. OpenSpec config (preserve existing)

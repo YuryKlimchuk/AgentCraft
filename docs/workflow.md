@@ -60,7 +60,8 @@ flowchart TD
     G7 -->|Passed| F
 
     F --> G8{"G8: Final checks passed?"}
-    G8 -->|No| D
+    G8 -->|"No (results missing)"| D
+    G8 -->|"No (publish failed)"| F
     G8 -->|Yes| PR["Create Pull Request"]
     PR --> E([Workflow completed])
 
@@ -89,7 +90,7 @@ Detailed pass conditions for each gate are in [docs/quality-gates.md](quality-ga
 
 > **Note on G3 and G4.** G3 means the Architect's artifacts are ready, not final user approval. Final approval of the whole package happens at G4, after QA Planning.
 >
-> **Note on G8.** G8 does not re-run testing: it verifies that confirmed results from previous stages exist.
+> **Note on G8.** G8 does not re-run testing: it verifies that confirmed results from previous stages exist. On failure the return path depends on the cause: missing results → the failed stage; publication failure → retry Finalization; permission/config → user decision. See [docs/quality-gates.md](quality-gates.md).
 
 ---
 
