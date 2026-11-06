@@ -35,10 +35,12 @@ target. It copies `templates/AGENTS.md` only when the target has no `AGENTS.md`;
 `AGENTS.md` is left untouched. An existing `openspec/config.yaml` is preserved.
 
 By default the script is **additive**: it adds missing files and never overwrites. With
-`--update` it overwrites the AgentCraft-managed files (`.pi/agents`, `.pi/skills`,
-`docs/agentcraft`) and writes the installed version to `.pi/agentcraft-version`. Even in update
-mode, `AGENTS.md` and `openspec/config.yaml` are never overwritten. Keep customisations in your
-own files rather than editing AgentCraft's files in place, so `--update` does not clobber them.
+`--update` it overwrites only the files AgentCraft itself installed — tracked per-file in
+`.pi/agentcraft-manifest` — and skips locally modified or foreign same-named files with a
+warning. It also writes the installed version to `.pi/agentcraft-version`. Even in update
+mode, `AGENTS.md` and `openspec/config.yaml` are never overwritten. Keep customisations in
+your own files rather than editing AgentCraft's files in place, so `--update` does not clobber
+them.
 
 ## Verify
 

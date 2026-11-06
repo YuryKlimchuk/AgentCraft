@@ -174,19 +174,60 @@ printf 'custom config\n'  > "$t/openspec/config.yaml"
 printf 'custom AGENTS\n'  > "$WORK/custom-agents-upd"
 printf 'custom config\n'  > "$WORK/custom-config-upd"
 
-expect_success "--update overwrites managed files" --update "$t"
+expect_success "--update preserves locally modified and user-owned files" --update "$t"
 if grep -q 'user tweak' "$t/.pi/agents/analyst.md"; then
-  bad "  --update left a modified agent file untouched"
+  ok "  locally modified agent file preserved by --update"
 else
-  ok "  --update overwrote a modified agent file"
+  bad "  --update clobbered a locally modified agent file"
 fi
 if grep -q 'user tweak' "$t/docs/agentcraft/workflow.md"; then
-  bad "  --update left a modified doc file untouched"
+  ok "  locally modified doc file preserved by --update"
 else
-  ok "  --update overwrote a modified doc file"
+  bad "  --update clobbered a locally modified doc file"
 fi
 assert_eq_file "  AGENTS.md preserved by --update" "$WORK/custom-agents-upd" "$t/AGENTS.md"
 assert_eq_file "  openspec/config.yaml preserved by --update" "$WORK/custom-config-upd" "$t/openspec/config.yaml"
+
+# --- manifest protects locally modified / foreign files ---------------------
+t="$(new_target manifest)"
+expect_success "fresh install writes manifest" "$t"
+assert_exists "  manifest file present" "$t/.pi/agentcraft-manifest"
+if grep -q '^[0-9a-f]\{64\} .pi/agents/analyst.md$' "$t/.pi/agentcraft-manifest"; then
+  ok "  manifest records an agent file"
+else
+  bad "  manifest missing analyst.md entry"
+fi
+
+# Same-name foreign file (the grill-me case) must survive --update.
+printf '# foreign grill-me\n' > "$t/.pi/skills/grill-me/SKILL.md"
+expect_success "--update keeps a foreign same-named skill" --update "$t"
+if grep -q 'foreign grill-me' "$t/.pi/skills/grill-me/SKILL.md"; then
+  ok "  foreign skill not clobbered by --update"
+else
+  bad "  foreign skill was clobbered by --update"
+fi
+
+# Locally modified managed file must survive --update.
+printf '\n# user tweak\n' >> "$t/.pi/agents/analyst.md"
+expect_success "--update keeps a locally modified file" --update "$t"
+if grep -q 'user tweak' "$t/.pi/agents/analyst.md"; then
+  ok "  locally modified file not clobbered by --update"
+else
+  bad "  locally modified file was clobbered by --update"
+fi
+
+# Unmodified AgentCraft content (an old version) is overwritten on --update.
+printf 'OLD VERSION\n' > "$t/.pi/agents/architect.md"
+old_hash="$(sha256sum "$t/.pi/agents/architect.md" | cut -d' ' -f1)"
+grep -v ' .pi/agents/architect.md$' "$t/.pi/agentcraft-manifest" > "$WORK/m.tmp"
+printf '%s .pi/agents/architect.md\n' "$old_hash" >> "$WORK/m.tmp"
+sort -k2 "$WORK/m.tmp" > "$t/.pi/agentcraft-manifest"
+expect_success "--update overwrites unmodified old content" --update "$t"
+if cmp -s "$t/.pi/agents/architect.md" "$SRC/agents/architect.md"; then
+  ok "  old content updated to current source"
+else
+  bad "  old content was not updated by --update"
+fi
 
 # --- summary -----------------------------------------------------------------
 echo
