@@ -27,8 +27,8 @@ bad() { FAIL=$((FAIL+1)); echo "FAIL - $1"; }
 new_target() { mktemp -d "$WORK/${1:-target}.XXXXXX"; }
 
 expect_success() {
-  local desc="$1" target="$2"
-  if "$SETUP" "$target" >"$WORK/log" 2>&1; then
+  local desc="$1"; shift
+  if "$SETUP" "$@" >"$WORK/log" 2>&1; then
     ok "$desc"
   else
     bad "$desc (setup.sh exited non-zero)"
@@ -37,8 +37,8 @@ expect_success() {
 }
 
 expect_failure() {
-  local desc="$1" target="$2"
-  if "$SETUP" "$target" >"$WORK/log" 2>&1; then
+  local desc="$1"; shift
+  if "$SETUP" "$@" >"$WORK/log" 2>&1; then
     bad "$desc (setup.sh unexpectedly succeeded)"
   else
     ok "$desc"
@@ -70,6 +70,17 @@ assert_eq_file  "  AGENTS.md is the template" "$SRC/templates/AGENTS.md" "$t/AGE
 # --- idempotency -----------------------------------------------------------
 expect_success "second run is a no-op" "$t"
 assert_eq_file "  AGENTS.md unchanged after second run" "$SRC/templates/AGENTS.md" "$t/AGENTS.md"
+
+# --- default install is additive (does not overwrite a modified agent) -----
+t="$(new_target additive)"
+expect_success "fresh install before additive check" "$t"
+printf '\n# user tweak\n' >> "$t/.pi/agents/analyst.md"
+expect_success "second install does not overwrite modified file" "$t"
+if grep -q 'user tweak' "$t/.pi/agents/analyst.md"; then
+  ok "  modified agent file preserved by additive install"
+else
+  bad "  additive install overwrote a modified agent file"
+fi
 
 # --- non-destructive --------------------------------------------------------
 t="$(new_target keep)"
@@ -144,6 +155,38 @@ ln -s "$outside" "$t/docs/agentcraft"
 expect_success "self-heals symlinked docs/agentcraft" "$t"
 assert_real_dir "  docs/agentcraft is a real directory" "$t/docs/agentcraft"
 assert_exists   "  workflow.md copied into real dir" "$t/docs/agentcraft/workflow.md"
+
+# --- --update mode ----------------------------------------------------------
+t="$(new_target update-fresh)"
+expect_success "--update on a fresh target installs assets" --update "$t"
+assert_exists "  analyst.md present after --update" "$t/.pi/agents/analyst.md"
+assert_exists "  version stamp written" "$t/.pi/agentcraft-version"
+if grep -q '^agentcraft-commit:' "$t/.pi/agentcraft-version"; then
+  ok "  version stamp records a commit"
+else
+  bad "  version stamp missing commit line"
+fi
+
+printf '\n# user tweak\n' >> "$t/.pi/agents/analyst.md"
+printf '\n# user tweak\n' >> "$t/docs/agentcraft/workflow.md"
+printf 'custom AGENTS\n'  > "$t/AGENTS.md"
+printf 'custom config\n'  > "$t/openspec/config.yaml"
+printf 'custom AGENTS\n'  > "$WORK/custom-agents-upd"
+printf 'custom config\n'  > "$WORK/custom-config-upd"
+
+expect_success "--update overwrites managed files" --update "$t"
+if grep -q 'user tweak' "$t/.pi/agents/analyst.md"; then
+  bad "  --update left a modified agent file untouched"
+else
+  ok "  --update overwrote a modified agent file"
+fi
+if grep -q 'user tweak' "$t/docs/agentcraft/workflow.md"; then
+  bad "  --update left a modified doc file untouched"
+else
+  ok "  --update overwrote a modified doc file"
+fi
+assert_eq_file "  AGENTS.md preserved by --update" "$WORK/custom-agents-upd" "$t/AGENTS.md"
+assert_eq_file "  openspec/config.yaml preserved by --update" "$WORK/custom-config-upd" "$t/openspec/config.yaml"
 
 # --- summary -----------------------------------------------------------------
 echo

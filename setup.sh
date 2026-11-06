@@ -3,10 +3,31 @@
 # Distributes AgentCraft assets into a target repository.
 #
 # Usage:
-#   ./setup.sh [target-directory]   # default: current directory
+#   ./setup.sh [--update] [target-directory]   # default: current directory
+#
+#   --update  overwrite AgentCraft-managed files (.pi/agents, .pi/skills,
+#             docs/agentcraft) and refresh the version stamp. AGENTS.md and
+#             openspec/config.yaml are never overwritten.
+#   Default   additive: adds missing files, never overwrites.
 set -euo pipefail
 
-TARGET="${1:-.}"
+usage() {
+  echo "Usage: ./setup.sh [--update] [target-directory]" >&2
+  echo "  --update  overwrite AgentCraft-managed files (default: additive)" >&2
+}
+
+UPDATE=0
+TARGET="."
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --update|-u) UPDATE=1 ;;
+    -h|--help) usage; exit 0 ;;
+    -*) echo "Error: unknown option: $1" >&2; usage; exit 1 ;;
+    *) TARGET="$1" ;;
+  esac
+  shift
+done
+
 SRC="$(cd "$(dirname "$0")" && pwd)"
 
 if [ ! -d "$TARGET" ]; then
@@ -27,8 +48,9 @@ echo "AgentCraft setup → $TARGET_ABS"
 #      .pi, docs, openspec, AGENTS.md.
 #    - Replace a stray symlink with a real directory only for leaf directories
 #      that AgentCraft fully owns: .pi/agents, .pi/skills, docs/agentcraft.
-#    Everything below is additive: it adds AgentCraft's assets, never overwrites
-#    existing same-named files, and never deletes the target's own content.
+#    Below, copying is additive by default (adds missing files, never overwrites);
+#    with --update it overwrites AgentCraft-managed files. Either way setup.sh
+#    never deletes the target's own content.
 refuse_symlink() {
   local p="$1"
   if [ -L "$p" ]; then
@@ -55,16 +77,32 @@ ensure_real_dir "$TARGET/.pi/agents"
 ensure_real_dir "$TARGET/.pi/skills"
 ensure_real_dir "$TARGET/docs/agentcraft"
 
+# Copy helpers: --update overwrites, default is additive.
+copy_tree() {
+  if [ "$UPDATE" -eq 1 ]; then
+    cp -R "$1" "$2"
+  else
+    cp -R -n "$1" "$2"
+  fi
+}
+copy_file() {
+  if [ "$UPDATE" -eq 1 ]; then
+    cp "$1" "$2"
+  else
+    cp -n "$1" "$2"
+  fi
+}
+
 # 1. Agents (.pi/agents)
-cp -R -n "$SRC/agents/." "$TARGET/.pi/agents/"
+copy_tree "$SRC/agents/." "$TARGET/.pi/agents/"
 
 # 2. Skills (.pi/skills)
-cp -R -n "$SRC/skills/." "$TARGET/.pi/skills/"
+copy_tree "$SRC/skills/." "$TARGET/.pi/skills/"
 
 # 3. Documentation (docs/agentcraft/)
 for f in "$SRC"/docs/*.md; do
   [ -e "$f" ] || continue
-  cp -n "$f" "$TARGET/docs/agentcraft/$(basename "$f")"
+  copy_file "$f" "$TARGET/docs/agentcraft/$(basename "$f")"
 done
 
 # 4. OpenSpec config (preserve existing)
@@ -91,5 +129,18 @@ else
   cp "$AGENTS_TEMPLATE" "$TARGET/AGENTS.md"
   echo "  copied AGENTS.md template"
 fi
+
+# 6. Version stamp — record what was installed (refreshed on --update).
+write_version_stamp() {
+  local commit="unknown"
+  if command -v git >/dev/null 2>&1 && git -C "$SRC" rev-parse --verify HEAD >/dev/null 2>&1; then
+    commit="$(git -C "$SRC" rev-parse HEAD)"
+  fi
+  {
+    echo "agentcraft-commit: $commit"
+    echo "installed-at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  } > "$TARGET/.pi/agentcraft-version"
+}
+write_version_stamp
 
 echo "Done. Review .pi/agents, .pi/skills, docs/agentcraft/, openspec/, AGENTS.md."

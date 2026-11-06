@@ -26,12 +26,19 @@ reusable engineering assets for AI coding agents:
 ## Install into a target repository
 
 ```bash
-./setup.sh /path/to/target-repository   # default: current directory
+./setup.sh /path/to/target-repository            # install: add missing files only
+./setup.sh --update /path/to/target-repository   # update: overwrite AgentCraft-managed files
 ```
 
 The script copies agents, skills, docs (into `docs/agentcraft/`), and OpenSpec config into the
 target. It copies `templates/AGENTS.md` only when the target has no `AGENTS.md`; an existing
 `AGENTS.md` is left untouched. An existing `openspec/config.yaml` is preserved.
+
+By default the script is **additive**: it adds missing files and never overwrites. With
+`--update` it overwrites the AgentCraft-managed files (`.pi/agents`, `.pi/skills`,
+`docs/agentcraft`) and writes the installed version to `.pi/agentcraft-version`. Even in update
+mode, `AGENTS.md` and `openspec/config.yaml` are never overwritten. Keep customisations in your
+own files rather than editing AgentCraft's files in place, so `--update` does not clobber them.
 
 ## Verify
 
