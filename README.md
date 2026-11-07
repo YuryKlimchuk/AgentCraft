@@ -18,7 +18,7 @@ reusable engineering assets for AI coding agents:
 | `templates/AGENTS.md` | Generic project-instructions template copied into target repositories |
 | `agents/` | Subagent definitions (distributed to `.pi/agents`) |
 | `skills/` | Engineering skills (distributed to `.pi/skills`) |
-| `docs/` | Workflow, orchestrator, and quality-gate documentation |
+| `docs/` | Workflow, orchestrator, quality-gate, findings, and telemetry documentation |
 | `openspec/` | OpenSpec configuration and templates |
 | `setup.sh` | Lightweight install/update script |
 | `tests/` | setup.sh regression tests (dev-only, not distributed) |

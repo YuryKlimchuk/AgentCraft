@@ -374,6 +374,7 @@ The Orchestrator collects the workflow artifacts:
 - Developer verification results.
 - Reviewer report.
 - QA report.
+- Stage telemetry (time and tokens per stage).
 
 It then:
 

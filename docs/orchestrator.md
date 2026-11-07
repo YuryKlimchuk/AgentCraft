@@ -85,9 +85,20 @@ Pass between stages and keep:
 - requirements and AC (from `analyst`);
 - OpenSpec artifacts: Proposal, Specs, Design, Tasks (in `openspec/`, from `architect`);
 - Test plan and risks (from `qa-planner`);
-- check results, review and QA reports.
+- check results, review and QA reports;
+- stage telemetry (time and tokens per stage, see [telemetry.md](telemetry.md)).
 
 Keep the chain "requirement → design → implementation → verification" traceable: every artifact should reference its source.
+
+## Stage telemetry
+
+After each stage, the Orchestrator records one telemetry row (time, tokens, cost, turns, model)
+and appends it to the run's telemetry table. Read the fields from the `subagent()` result; do not
+ask the subagent to self-report usage. Full format and rules are in [telemetry.md](telemetry.md).
+
+- Stages 2–7: read `durationMs`, `totalTokens`, `totalCost`, `turnCount`, `toolCount`, `model` from the run result.
+- Stages 1 and 8: the Orchestrator records its own wall-clock time only; its tokens are part of the parent session and are not attributable per stage.
+- Include the completed table in the final workflow report.
 
 ## Coordination with subagents
 
@@ -105,4 +116,4 @@ Keep the chain "requirement → design → implementation → verification" trac
 ## Performed by the Orchestrator itself
 
 - **Preparation (G1):** accept the task and target repository, verify accessibility and absence of conflicts, prepare a working branch, store the original task.
-- **Finalization (G8):** verify G5/G6/G7 passed, collect artifacts, prepare the final report, create the Pull Request, notify the user. G8 does not re-run testing.
+- **Finalization (G8):** verify G5/G6/G7 passed, collect artifacts (including stage telemetry), prepare the final report, create the Pull Request, notify the user. G8 does not re-run testing.

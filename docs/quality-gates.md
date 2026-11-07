@@ -164,7 +164,7 @@ This document details the pass conditions for each workflow Quality Gate. The wo
 - [ ] Developer checks passed (G5).
 - [ ] Reviewer approved the implementation (G6).
 - [ ] QA Testing has a confirmed positive result (G7).
-- [ ] Workflow artifacts are collected (requirements, OpenSpec docs, Test plan, check results, reports).
+- [ ] Workflow artifacts are collected (requirements, OpenSpec docs, Test plan, check results, reports, stage telemetry).
 - [ ] The Pull Request is created and the user is notified.
 
 **On failure (depends on cause):**
