@@ -94,6 +94,70 @@ Detailed pass conditions for each gate are in [docs/quality-gates.md](quality-ga
 
 ---
 
+## Workflow state and visibility
+
+The Orchestrator maintains a single source of truth for the current workflow position, so
+"which stage am I in right now" is always answerable without reconstructing it from the conversation.
+
+### State file
+
+- **Location:** `.pi/agentcraft-state.md` in the target repository.
+- **Created** during Preparation, **updated** after every stage and gate transition, **closed** during Finalization.
+- It is the only place that records the current stage; the other workflow documents remain static.
+
+Format:
+
+````markdown
+# AgentCraft — Workflow State
+
+- Run: <task reference>
+- Repository: <repository>
+- Branch: <working branch>
+- Updated: <ISO 8601 timestamp>
+
+## Current
+
+- Stage: <n>/8 <Stage name>
+- Gate: <Gn> — <in progress | awaiting approval | passed | failed>
+- Status: <in-progress | awaiting-approval | completed>
+
+## Stage status
+
+| # | Stage | Status |
+|---|-------|--------|
+| 1 | Preparation | done |
+| 2 | Analyst | in-progress |
+| 3 | Architect | pending |
+| 4 | QA Planning | pending |
+| 5 | Developer | pending |
+| 6 | Reviewer | pending |
+| 7 | QA Testing | pending |
+| 8 | Finalization | pending |
+
+## Pending approvals
+
+- <Gn>: <what the user must approve> — awaiting user approval
+
+## Next
+
+- <one line: what happens after the current gate passes>
+````
+
+Stage `Status` values: `pending`, `in-progress`, `done`, `failed` (a `failed` stage is the rollback target).
+
+### Status banner
+
+While a workflow is active, the Orchestrator prints one short status line at the start of each
+response so the current position is visible without opening the state file:
+
+```text
+📍 AgentCraft · 2/8 Analyst · G2 (requirements approval)
+```
+
+The banner summarizes the state file; it is re-printed after every transition and is never a second source of truth.
+
+---
+
 ## 1. Preparation
 
 **Goal:** Prepare the task and working environment.

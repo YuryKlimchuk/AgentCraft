@@ -12,6 +12,7 @@ The Orchestrator runs the process according to [`workflow.md`](workflow.md) and 
 4. Request user approval at checkpoints.
 5. Pass artifacts between stages.
 6. Handle rollbacks and failures.
+7. Maintain the workflow state file and print the status banner (see "Workflow state" below).
 
 ## Stage map
 
@@ -25,6 +26,20 @@ The Orchestrator runs the process according to [`workflow.md`](workflow.md) and 
 | 6 | Reviewer | `dev-reviewer` | G6 | no |
 | 7 | QA Testing | `qa-tester` | G7 | **yes** — manual verification only |
 | 8 | Finalization | Orchestrator | G8 | no (Orchestrator creates the PR, user merges) |
+
+## Workflow state
+
+Maintain a single, visible source of truth for the current position: `.pi/agentcraft-state.md`
+in the target repository. Full format and rules are in [workflow.md](workflow.md#workflow-state-and-visibility).
+
+- **Create** the state file during Preparation (G1).
+- **Update** it after every transition: stage start (`in-progress`), gate evaluation, gate
+  pass/fail, and any rollback.
+- **Print the status banner** — `📍 AgentCraft · <n>/8 <Stage> · <Gn> (<status>)` — at the start of
+  each response while a workflow is active, and re-print it after every transition.
+- **Close** the state file during Finalization (status `completed`) and reference it in the final report.
+
+The state file is the source of truth; the banner is only a summary of it.
 
 ## How to launch subagents
 
@@ -115,5 +130,5 @@ ask the subagent to self-report usage. Full format and rules are in [telemetry.m
 
 ## Performed by the Orchestrator itself
 
-- **Preparation (G1):** accept the task and target repository, verify accessibility and absence of conflicts, prepare a working branch, store the original task.
-- **Finalization (G8):** verify G5/G6/G7 passed, collect artifacts (including stage telemetry), prepare the final report, create the Pull Request, notify the user. G8 does not re-run testing.
+- **Preparation (G1):** accept the task and target repository, verify accessibility and absence of conflicts, prepare a working branch, store the original task, and create the workflow state file (`.pi/agentcraft-state.md`).
+- **Finalization (G8):** verify G5/G6/G7 passed, collect artifacts (including stage telemetry), close the workflow state file, prepare the final report, create the Pull Request, notify the user. G8 does not re-run testing.

@@ -34,7 +34,7 @@ This document details the pass conditions for each workflow Quality Gate. The wo
 - [ ] No conflicts with workflows already running in this repository.
 - [ ] The base branch is identified; a working branch is created from its current state and checked out.
 - [ ] Task context is stored (original task and relevant artifacts).
-- [ ] The workflow is initialized: initial state is captured and workflow artifact storage is prepared.
+- [ ] The workflow is initialized: the workflow state file (`.pi/agentcraft-state.md`) is created and workflow artifact storage is prepared.
 
 **On failure:** return to Preparation and resolve the blockers.
 
@@ -165,6 +165,7 @@ This document details the pass conditions for each workflow Quality Gate. The wo
 - [ ] Reviewer approved the implementation (G6).
 - [ ] QA Testing has a confirmed positive result (G7).
 - [ ] Workflow artifacts are collected (requirements, OpenSpec docs, Test plan, check results, reports, stage telemetry).
+- [ ] The workflow state file is closed (status `completed`) and included in the final report.
 - [ ] The Pull Request is created and the user is notified.
 
 **On failure (depends on cause):**

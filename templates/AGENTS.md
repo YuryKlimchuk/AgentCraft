@@ -19,6 +19,7 @@ Development follows eight stages coordinated by the Orchestrator (the leading co
 - Stage details and transitions: `docs/agentcraft/workflow.md`
 - Orchestrator role and delegation rules: `docs/agentcraft/orchestrator.md`
 - Quality-gate pass conditions: `docs/agentcraft/quality-gates.md`
+- Current workflow position: `.pi/agentcraft-state.md` (maintained by the Orchestrator)
 
 ## Quality gates
 
